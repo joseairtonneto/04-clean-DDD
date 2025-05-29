@@ -9,7 +9,7 @@ let sut: GetQuestionBySlugUseCase
 describe('Get Question By Slug Use Case', () => {
   beforeEach(() => {
     inMemoryQuestionsRepository = new InMemoryQuestionsRepository()
-    
+
     sut = new GetQuestionBySlugUseCase(inMemoryQuestionsRepository)
   })
 
@@ -18,9 +18,14 @@ describe('Get Question By Slug Use Case', () => {
 
     await inMemoryQuestionsRepository.create(newQuestion)
 
-    const { question } = await sut.execute({ slug: 'new-question' })
+    const result = await sut.execute({ slug: 'new-question' })
 
-    expect(question.id).toEqual(newQuestion.id)
-    expect(question.slug).toEqual(newQuestion.slug)
+    expect(result.isRight()).toBe(true)
+    expect(result.value).toMatchObject({
+      question: expect.objectContaining({
+        id: newQuestion.id,
+        slug: newQuestion.slug,
+      }),
+    })
   })
 })

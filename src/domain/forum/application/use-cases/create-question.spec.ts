@@ -7,17 +7,17 @@ let sut: CreateQuestionUseCase
 describe('Create Question Use Case', () => {
   beforeEach(() => {
     inMemoryQuestionsRepository = new InMemoryQuestionsRepository()
-    
+
     sut = new CreateQuestionUseCase(inMemoryQuestionsRepository)
   })
 
   it('should be able to create a question', async () => {
-    const { question } = await sut.execute({
+    const result = await sut.execute({
       authorId: 'author-1',
       title: 'New question',
       content: 'New question content',
     })
 
-    expect(question.id).toBeTruthy()
+    expect(result.isRight()).toBe(true)
   })
 })

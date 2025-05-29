@@ -1,15 +1,21 @@
 import { Question } from '../../enterprise/entities/question'
 import { QuestionsRepository } from '../repositories/questions-repository'
 import { AnswersRepository } from '../repositories/answers-repository'
+import { Either, left, right } from '@/core/either'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 interface ChooseQuestionBestAnswerUseCaseRequest {
   authorId: string
   answerId: string
 }
 
-interface ChooseQuestionBestAnswerUseCaseResponse {
-  question: Question
-}
+type ChooseQuestionBestAnswerUseCaseResponse = Either<
+  ResourceNotFoundError | NotAllowedError,
+  {
+    question: Question
+  }
+>
 
 export class ChooseQuestionBestAnswerUseCase {
   constructor(
@@ -23,18 +29,18 @@ export class ChooseQuestionBestAnswerUseCase {
   }: ChooseQuestionBestAnswerUseCaseRequest): Promise<ChooseQuestionBestAnswerUseCaseResponse> {
     const answer = await this.answersRepository.findById(answerId)
 
-    if (!answer) throw new Error('Answer not found')
+    if (!answer) return left(new ResourceNotFoundError())
 
     const question = await this.questionsRepository.findById(answer.questionId.toString())
 
-    if (!question) throw new Error('Question not found')
+    if (!question) return left(new ResourceNotFoundError())
 
-    if (authorId !== question.authorId.toString()) throw new Error('Unauthorized.')
+    if (authorId !== question.authorId.toString()) return left(new NotAllowedError())
 
     question.bestAnswerId = answer.id
 
     await this.questionsRepository.save(question)
 
-    return { question }
+    return right({ question })
   }
 }
