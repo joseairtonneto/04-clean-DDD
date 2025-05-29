@@ -4,7 +4,7 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
 import dayjs from 'dayjs'
 
-interface QuestionProps {
+export interface QuestionProps {
   authorId: UniqueEntityID
   bestAnswerId?: UniqueEntityID
   title: string
@@ -31,12 +31,16 @@ export class Question extends Entity<QuestionProps> {
     return this.props.slug
   }
 
-  get createdAt() {
+  get content() {
     return this.props.content
   }
 
+  get createdAt() {
+    return this.props.createdAt
+  }
+
   get updatedAt() {
-    return this.props.content
+    return this.props.updatedAt
   }
 
   get isNew(): boolean {
@@ -75,7 +79,7 @@ export class Question extends Entity<QuestionProps> {
       {
         ...props,
         slug: props.slug ?? Slug.createFromText(props.title),
-        createdAt: new Date(),
+        createdAt: props.createdAt ?? new Date(),
       },
       id
     )
